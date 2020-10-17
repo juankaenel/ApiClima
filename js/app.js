@@ -8,15 +8,16 @@ window.addEventListener('load', () => {
 
 function buscarClima(e) {
     e.preventDefault();
+    //Validación
     const ciudad = document.querySelector('#ciudad').value;
     const pais = document.querySelector('#pais').value;
 
     if (ciudad === '' || pais === '') {
         mostrarError('Ambos campos son obligatorios');
-
         return;
     }
-
+    //Consultar api
+    consultarAPI(ciudad,pais);
 }
 
 function mostrarError(mensaje) {
@@ -39,4 +40,24 @@ function mostrarError(mensaje) {
             alerta.remove();
         },4000);
     }
+}
+
+/*
+Para poder consumir la API primero hay que solicitar la API KEY, se deben registrar en: https://home.openweathermap.org/users/sign_in
+Luego ir a https://home.openweathermap.org/api_keys y copiar la KEY que te dan.
+Link de documentación de la API, https://openweathermap.org/current
+*/
+
+function consultarAPI(ciudad,pais){
+    const appID = 'fbf977614bda21387e3c6107dfc8e6d0';
+    //Muy importante agregar https antes de la ruta de la api
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad},${pais}&appid=${appID}`;
+
+    fetch(url)
+        .then(respuesta=> respuesta.json())
+        .then(resultado=> {
+            if (resultado.cod==='404'){
+                mostrarError('Ciudad no encontrada');
+            }
+        });
 }
