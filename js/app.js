@@ -1,3 +1,5 @@
+import {appKey} from './ApiKey.js';
+
 const container = document.querySelector('.container');
 const resultado = document.querySelector('#resultado');
 const formulario = document.querySelector('#formulario');
@@ -49,15 +51,48 @@ Link de documentación de la API, https://openweathermap.org/current
 */
 
 function consultarAPI(ciudad,pais){
-    const appID = 'fbf977614bda21387e3c6107dfc8e6d0';
+    //Limpar html
+    limpiarHTML();
+
     //Muy importante agregar https antes de la ruta de la api
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad},${pais}&appid=${appID}`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad},${pais}&appid=${appKey}`;
 
     fetch(url)
         .then(respuesta=> respuesta.json())
-        .then(resultado=> {
-            if (resultado.cod==='404'){
+        .then(datos=> {
+            if (datos.cod==='404'){
                 mostrarError('Ciudad no encontrada');
+                return;
             }
+            mostrarClima(datos);
         });
+}
+
+function mostrarClima(datos){
+
+    const {main: {temp,temp_min, temp_max, pressure, humidity}} = datos; //Destructuring
+    const centigrados = kelvinACentigrados(temp);
+
+    const actual = document.createElement('p');
+    //&#8451  = °C
+    actual.innerHTML = `
+    Temperatura = ${centigrados} &#8451 
+    `;
+
+    actual.classList.add('font-bold','mt-5','text-6x1');
+    const resultadoDiv = document.createElement('div');
+    resultadoDiv.classList.add('text-center','text-white');
+    resultadoDiv.appendChild(actual);
+    resultado.appendChild(resultadoDiv);
+
+}
+
+//Función que convierte los grados kelvin a centigrados
+const kelvinACentigrados = grados =>  parseInt(grados - 273.15);
+
+
+function limpiarHTML(){
+    while (resultado.firstChild){
+        resultado.removeChild(resultado.firstChild);
+    }
 }
